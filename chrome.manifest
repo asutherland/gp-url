@@ -1,0 +1,5 @@
+content	gpurl	content/
+locale	gpurl	en-US	locale/en-US/
+skin	gpurl	classic/1.0	skin/
+overlay	chrome://messenger/content/messenger.xul	chrome://gpurl/content/thunderbirdOverlay.xul
+resource gpurl ./
