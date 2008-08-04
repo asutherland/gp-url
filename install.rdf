@@ -2,8 +2,8 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
  xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
-    <em:id>gpurl@mozilla.messaging.inc.</em:id>
-    <em:name>gp-url</em:name>
+    <em:id>gpurl@mozillamessaging.com</em:id>
+    <em:name>Gloda Plugin: URL</em:name>
     <em:version>0.1</em:version>
     <em:creator>Mozilla Messaging, Inc.</em:creator>
     <em:contributor>Andrew Sutherland &lt;asutherland@asutherland.org&gt;</em:contributor>

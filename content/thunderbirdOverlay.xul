@@ -43,9 +43,4 @@
   <stringbundleset id="stringbundleset">
     <stringbundle id="gpurl-strings" src="chrome://gpurl/locale/gpurl.properties"/>
   </stringbundleset>
-
-  <menupopup id="taskPopup">
-    <menuitem id="gpurl-hello" label="&gpurl.label;" 
-              oncommand="gpurl.onMenuItemCommand(event);"/>
-  </menupopup>
 </overlay>
