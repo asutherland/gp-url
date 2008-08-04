@@ -35,7 +35,7 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
-EXPORTED_SYMBOLS = ['Url', 'UrlNoun', 'UrlRegex'];
+EXPORTED_SYMBOLS = ['Url', 'UrlNoun', 'URL_REGEX_STR'];
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -50,7 +50,7 @@ const LEGAL_SPECIAL_CHARS = "-$_.+!*'(),";
 const LEGAL_CHARS = LEGAL_SPECIAL_CHARS + "a-zA-Z0-9";
 const LEGAL_RANGE = "[" + LEGAL_CHARS + "]";
 const LEGAL_DNS_CHARS = "-a-zA-Z0-9.";
-let UrlRegex = new RegExp(
+const URL_REGEX_STR = (
   // protocol [1], delimeter
   "(https?)://" +
   // username[3]:password[4]@    presence:[2]
@@ -60,14 +60,12 @@ let UrlRegex = new RegExp(
   // path[7]
   "([" + LEGAL_CHARS + "/]*)" +
   // query[8]
-  "(?:\\?([" + LEGAL_CHARS + "/&=]*))?",
-  "g");
+  "(?:\\?([" + LEGAL_CHARS + "/&=]*))?");
+
+let InternalUrlRegex = new RegExp(URL_REGEX_STR, "");
 
 function Url(aUrlString, aID) {
-  let match = UrlRegex.exec(aUrlString);
-  // since we re-use the regex, we need to eat the null result with this next
-  //  call...
-  UrlRegex.exec(aUrlString);
+  let match = InternalUrlRegex.exec(aUrlString);
   
   // commenting out things we don't care about for now... (for shame)
   this.proto = match[1];
@@ -144,8 +142,8 @@ let UrlNoun = {
    * - query: 2 bytes
    */
   _mapUrl: function (aUrl) {
-    let domainUrl = aUrl.domainUrl;
-    let domainId = this._dbLookupByUrl(domainUrl);
+    let domainUrl = aUrl.domainStr;
+    let domainId = this._dbLookupIdByUrl(domainUrl);
     if (domainId === null) {
       domainId = this._highId = (this._highId - (this._highId % DOMAIN_MULT)) +
                                 DOMAIN_MULT;
@@ -155,10 +153,10 @@ let UrlNoun = {
     if (!aUrl.path)
       return domainId;
     
-    let pathUrl = aUrl.pathUrl;
-    let pathId = this._dbLookupByUrl(pathUrl);
+    let pathUrl = aUrl.pathStr;
+    let pathId = this._dbLookupIdByUrl(pathUrl);
     if (pathId === null) {
-      pathId = this._tableUrl.getHighIdLessThan(domainId + DOMAIN_MULT - 1);
+      pathId = this._tableUrl.getHighId(domainId + DOMAIN_MULT - 1);
       if (pathId > 0)
         pathId = (pathId - (pathId % PATH_MULT)) + PATH_MULT;
       else
@@ -169,10 +167,10 @@ let UrlNoun = {
     if (!aUrl.query)
       return pathId;
     
-    let queryUrl = aUrl.toString();
-    let queryId = this._dbLookupByUrl(queryUrl);
+    let queryUrl = aUrl.queryStr;
+    let queryId = this._dbLookupIdByUrl(queryUrl);
     if (queryId === null) {
-      queryId = this._tableUrl.getHighIdLessThan(pathId + PATH_MULT - 1);
+      queryId = this._tableUrl.getHighId(pathId + PATH_MULT - 1);
       if (queryId > 0)
         queryId++;
       else
@@ -181,15 +179,15 @@ let UrlNoun = {
     return queryId;
   },
   
-  _dbLookupByUrl: function(aUrl) {
-    let row = this._tableUrl.select('url', aUrl);
+  _dbLookupIdByUrl: function(aUrl) {
+    let row = this._tableUrl.selectOne('url', aUrl);
     if (row)
-      return row;
+      return row.id;
     return null;
   },
   
   _dbLookupById: function(aID) {
-    let row = this._tableUrl.select('id', aID);
+    let row = this._tableUrl.selectOne('id', aID);
     if (row)
       return row;
     return null;
@@ -203,7 +201,12 @@ let UrlNoun = {
                                                              aUrlId) {
     let row = this._dbLookupById(aUrlId);
     
-    return new Url(row.id, row.url);
+    if (row === null) {
+      dump("Unable to locate Url with id: " + aUrlId + "\n");
+      return null;
+    }
+    
+    return new Url(row.url, row.id);
   },
 };
 

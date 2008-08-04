@@ -51,15 +51,17 @@ try {
 Cu.import("resource://gpurl/modules/noun_url.js");
 }
 catch (ex) {
-  dump(":!:!:!:!:!: " + ex.lineNumber + " " + ex);
+  dump(":!:!:!:!:!: " + ex.lineNumber + " " + ex + "\n");
 }
 
 const EXT_NAME = "gp-url";
 
+let UrlRegex = new RegExp(URL_REGEX_STR, "g");
+
 let UrlAttr = {
   providerName: EXT_NAME,
   _log: null,
-  _urlRegex: null,
+  _attrUrl: null,
 
   init: function() {
     this._log =  Log4Moz.Service.getLogger("gpurl.attr_url");
@@ -105,18 +107,17 @@ let UrlAttr = {
     if (aMimeMsg !== null) {
       let match;
       while ((match = UrlRegex.exec(aMimeMsg.body)) !== null) {
-        
+        this._log.debug("MATCH-URL: " + match[0]);
         let url = new Url(match[0]);
         
         // we get the url out again for normalization purposes
-        let urlStr = urlObj.toString();
         if (!(url.id in seenUrls)) {
           seenUrls[url.id] = true;
-          attrs.push([this._attrUrl.id, UrlNoun.toParamAndValue(url)]);
+          attrs.push([this._attrUrl.id, UrlNoun.toParamAndValue(url)[1]]);
         }
       }
     }
-
+    this._log.debug("URL ret: " + attrs);
     return attrs;
   },
 };
