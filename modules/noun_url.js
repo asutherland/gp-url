@@ -82,8 +82,6 @@ function Url(aUrlString, aID) {
     this._id = aID;
 }
 
-dump("korbug!\n");
-
 Url.prototype = {
   get id() { return this._id; },
   get domainStr() {
@@ -108,8 +106,6 @@ Url.prototype = {
   }
 };
 
-dump("agaba\n");
-
 const DOMAIN_MULT = 4294967296;
 const PATH_MULT = 65536;
 const QUERY_MULT = 1;
@@ -117,20 +113,17 @@ const QUERY_MULT = 1;
 let UrlNoun = {
   name: "url",
   class: Url,
-  firstClass: false,
+  allowsArbitraryAttrs: false,
 
   init: function() {
-    dump("ARGBA\n");
     this._tableUrl = Gloda.defineTable({
       name: 'url',
       columns: [['id', 'INTEGER PRIMARY KEY'],
                 ['url', 'TEXT']],
       indices: {url: ['url']}
     });
-    dump("GAAAAAH!\n");
     
     this._highId = this._tableUrl.getHighId();
-    dump("ping pong\n");
   },
 
   /**
@@ -210,9 +203,6 @@ let UrlNoun = {
   },
 };
 
-dump("moogly doogly\n");
 
 UrlNoun.init();
-dump("gagagaga\n");
 Gloda.defineNoun(UrlNoun);
-dump("kipper\n");
